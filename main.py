@@ -224,8 +224,8 @@ def save_markdown_file(path_prefix: str, content: str, filename: str):
         f.write(content)
 
 def github_action_env(key):
-    # return f'INPUT_{key}'.upper()
-    return f'{key}'.upper()
+    return f'INPUT_{key}'.upper()
+    # return f'{key}'.upper()
 
 def main():
     notion_token = os.environ[github_action_env('NOTION_TOKEN')]
