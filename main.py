@@ -22,14 +22,7 @@ class Notion:
         self.database_id = database_id
     
     def get_page_id(self, data: dict) -> list:
-        rich_text_node = data['properties'].get('Article', {})
-        mentions = []
-        if rich_text_node['type'] != 'rich_text':
-            raise TypeError("this field is not a rich text")
-        for i in rich_text_node['rich_text']:
-            if i['type'] == 'mention':
-                mentions.append(i['mention']['page']['id'])
-        return mentions[0] if len(mentions) > 0 else None
+        return data['id']
     
     def title(self, data: dict) -> str:
         title_node = data['properties'].get('Name', {})
@@ -153,15 +146,16 @@ class ImgStoreLocal(ImgStore):
     def get_img_path(self, path) -> str:
         return os.path.join(path, self.get_img_filename())
     
-    def sotre(self):
+    def store(self):
+
         store_path_prefix = self.kwargs['store_path_prefix']
         url_path_prefix = self.kwargs['url_path_prefix']
         if not os.path.exists(store_path_prefix):
             os.makedirs(store_path_prefix)
-        store_path = self.get_img_path(self, store_path_prefix)
+        store_path = self.get_img_path(store_path_prefix)
         with open(store_path, 'wb+') as f:
             f.write(self.img_data)
-        return self.get_img_path(self, url_path_prefix)
+        return self.get_img_path(url_path_prefix)
 
 class ImgHandler:
     '''图片处理
@@ -230,7 +224,8 @@ def save_markdown_file(path_prefix: str, content: str, filename: str):
         f.write(content)
 
 def github_action_env(key):
-    return f'INPUT_{key}'.upper()
+    # return f'INPUT_{key}'.upper()
+    return f'{key}'.upper()
 
 def main():
     notion_token = os.environ[github_action_env('NOTION_TOKEN')]
@@ -251,6 +246,7 @@ def main():
             continue
         logger.info(f'get page content from notion...')
         page_id = notion.get_page_id(page_node)
+        logger.info(f'page id: {page_id}')
         # 将page转化为markdown
         logger.info(f'parse <<{notion.title(page_node)}>>...')
         markdown_text = NotionToMarkdown(notion_token, page_id).parse()
@@ -277,4 +273,8 @@ def main():
 
 if __name__ == '__main__':
     logger.info('start parse notion for blog...')
+    # Load environment variables
+    from dotenv import load_dotenv
+    load_dotenv()
+
     main()
