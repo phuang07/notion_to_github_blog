@@ -42,8 +42,8 @@ class Notion:
     def md_filename(self, data: dict) -> str:
         rich_text_node = data['properties'].get('MDFilename', {})
         file_name = ''
-        if rich_text_node['type'] != 'rich_text':
-            raise TypeError("this field is not a rich text")
+        # if rich_text_node['type'] != 'rich_text':
+        #     raise TypeError("this field is not a rich text")
         for i in rich_text_node['rich_text']:
             file_name += i['plain_text']
         return file_name
